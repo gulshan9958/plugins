@@ -192,6 +192,7 @@ class CameraController extends ValueNotifier<CameraValue> {
 
       final previewSize =
           CameraPlatform.instance.onCameraInitialized(_cameraId).map((event) {
+            print("==> previewWidth : ${event.previewWidth} | previewHeight : ${event.previewHeight}");
         return Size(
           event.previewWidth,
           event.previewHeight,

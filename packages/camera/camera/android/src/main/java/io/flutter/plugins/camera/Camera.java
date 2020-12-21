@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import android.hardware.camera2.params.StreamConfigurationMap;
 
 public class Camera {
   private final SurfaceTextureEntry flutterTexture;
@@ -116,8 +117,11 @@ public class Camera {
     ResolutionPreset preset = ResolutionPreset.valueOf(resolutionPreset);
     recordingProfile =
         CameraUtils.getBestAvailableCamcorderProfileForResolutionPreset(cameraName, preset);
-    captureSize = new Size(recordingProfile.videoFrameWidth, recordingProfile.videoFrameHeight);
-    previewSize = computeBestPreviewSize(cameraName, preset);
+    //captureSize = new Size(recordingProfile.videoFrameWidth, recordingProfile.videoFrameHeight);
+    //previewSize = computeBestPreviewSize(cameraName, preset);
+    StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+    captureSize = CameraUtils.computeBestCaptureSize(streamConfigurationMap);
+    previewSize = CameraUtils.customComputeBestPreviewSize(streamConfigurationMap);
     cameraZoom =
         new CameraZoom(
             characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE),
@@ -262,6 +266,7 @@ public class Camera {
               Integer aeState = result.get(CaptureResult.CONTROL_AE_STATE);
               // Some devices might return null here, in which case we will also continue.
               if (aeState == null
+                  || aeState == CaptureRequest.CONTROL_AE_STATE_PRECAPTURE
                   || aeState == CaptureRequest.CONTROL_AE_STATE_FLASH_REQUIRED
                   || aeState == CaptureRequest.CONTROL_AE_STATE_CONVERGED) {
                 runPictureCapture();

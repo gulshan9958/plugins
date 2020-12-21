@@ -348,6 +348,9 @@ NSString *const errorMethod = @"error";
 }
 
 - (void)setCaptureSessionPreset:(ResolutionPreset)resolutionPreset {
+    _captureSession.sessionPreset = AVCaptureSessionPresetPhoto;
+    _previewSize = CGSizeMake(4000, 3000);
+   return;
   switch (resolutionPreset) {
     case max:
     case ultraHigh:

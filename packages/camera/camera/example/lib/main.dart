@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:image/image.dart' as imgUtils;
 
 class CameraExampleHome extends StatefulWidget {
   @override
@@ -351,7 +352,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     }
     controller = CameraController(
       cameraDescription,
-      ResolutionPreset.medium,
+      ResolutionPreset.max,
       enableAudio: enableAudio,
     );
 
@@ -384,7 +385,18 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
           videoController?.dispose();
           videoController = null;
         });
-        if (file != null) showInSnackBar('Picture saved to ${file.path}');
+        if (file != null) {
+          showInSnackBar('Picture saved to ${file.path}');
+
+          print("----------------------------------");
+          print("TAKE PHOTO CALLED");
+          String filePath = file.path;
+          final fileNew = File(filePath);
+          print("==> hastakePhoto : ${fileNew.exists()} | path : $filePath");
+          final img = imgUtils.decodeImage(fileNew.readAsBytesSync());
+          print("==> img.width : ${img.width} | img.height : ${img.height}");
+          print("----------------------------------");
+        }
       }
     });
   }

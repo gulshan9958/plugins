@@ -8,6 +8,7 @@ dependencies:
   flutter:
     sdk: flutter
   video_player: ^0.10.0
+  image: ^2.1.19
   integration_test:
     path: ../../../integration_test
 
