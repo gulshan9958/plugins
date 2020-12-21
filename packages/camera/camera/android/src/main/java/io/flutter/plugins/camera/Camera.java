@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import android.hardware.camera2.params.StreamConfigurationMap;
 
 @FunctionalInterface
 interface ErrorCallback {
@@ -150,8 +151,11 @@ public class Camera {
     ResolutionPreset preset = ResolutionPreset.valueOf(resolutionPreset);
     recordingProfile =
         CameraUtils.getBestAvailableCamcorderProfileForResolutionPreset(cameraName, preset);
-    captureSize = new Size(recordingProfile.videoFrameWidth, recordingProfile.videoFrameHeight);
-    previewSize = computeBestPreviewSize(cameraName, preset);
+    //captureSize = new Size(recordingProfile.videoFrameWidth, recordingProfile.videoFrameHeight);
+    //previewSize = computeBestPreviewSize(cameraName, preset);
+    StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+    captureSize = CameraUtils.computeBestCaptureSize(streamConfigurationMap);
+    previewSize = CameraUtils.customComputeBestPreviewSize(streamConfigurationMap);
     cameraZoom =
         new CameraZoom(
             cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE),
