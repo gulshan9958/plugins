@@ -258,6 +258,15 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
               ? () => onFlashModeButtonPressed(FlashMode.always)
               : null,
         ),
+        IconButton(
+          icon: const Icon(Icons.highlight),
+          color: controller?.value?.flashMode == FlashMode.torch
+              ? Colors.orange
+              : Colors.blue,
+          onPressed: controller != null
+              ? () => onFlashModeButtonPressed(FlashMode.torch)
+              : null,
+        ),
       ],
     );
   }
