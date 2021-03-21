@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'package:image/image.dart' as imgUtils;
+//import 'package:image/image.dart' as imgUtils;
 
 class CameraExampleHome extends StatefulWidget {
   @override
@@ -657,8 +657,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
           String filePath = file.path;
           final fileNew = File(filePath);
           print("==> hastakePhoto : ${fileNew.exists()} | path : $filePath");
-          final img = imgUtils.decodeImage(fileNew.readAsBytesSync());
-          print("==> img.width : ${img.width} | img.height : ${img.height}");
+          //final img = imgUtils.decodeImage(fileNew.readAsBytesSync());
+          //print("==> img.width : ${img.width} | img.height : ${img.height}");
           print("----------------------------------");
         }
       }

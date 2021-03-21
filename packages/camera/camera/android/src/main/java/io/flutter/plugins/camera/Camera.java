@@ -153,7 +153,7 @@ public class Camera {
         CameraUtils.getBestAvailableCamcorderProfileForResolutionPreset(cameraName, preset);
     //captureSize = new Size(recordingProfile.videoFrameWidth, recordingProfile.videoFrameHeight);
     //previewSize = computeBestPreviewSize(cameraName, preset);
-    StreamConfigurationMap streamConfigurationMap = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+    StreamConfigurationMap streamConfigurationMap = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
     captureSize = CameraUtils.computeBestCaptureSize(streamConfigurationMap);
     previewSize = CameraUtils.customComputeBestPreviewSize(streamConfigurationMap);
     cameraZoom =
