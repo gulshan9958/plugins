@@ -1,4 +1,4 @@
-// Copyright 2019 The Chromium Authors. All rights reserved.
+// Copyright 2013 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -75,7 +75,7 @@
       }];
   [_paymentQueueHandler startObservingPaymentQueue];
   _callbackChannel =
-      [FlutterMethodChannel methodChannelWithName:@"plugins.flutter.io/in_app_purchase_callback"
+      [FlutterMethodChannel methodChannelWithName:@"plugins.flutter.io/in_app_purchase"
                                   binaryMessenger:[registrar messenger]];
   return self;
 }
@@ -93,6 +93,9 @@
     [self finishTransaction:call result:result];
   } else if ([@"-[InAppPurchasePlugin restoreTransactions:result:]" isEqualToString:call.method]) {
     [self restoreTransactions:call result:result];
+  } else if ([@"-[InAppPurchasePlugin presentCodeRedemptionSheet:result:]"
+                 isEqualToString:call.method]) {
+    [self presentCodeRedemptionSheet:call result:result];
   } else if ([@"-[InAppPurchasePlugin retrieveReceiptData:result:]" isEqualToString:call.method]) {
     [self retrieveReceiptData:call result:result];
   } else if ([@"-[InAppPurchasePlugin refreshReceipt:result:]" isEqualToString:call.method]) {
@@ -246,6 +249,11 @@
   result(nil);
 }
 
+- (void)presentCodeRedemptionSheet:(FlutterMethodCall *)call result:(FlutterResult)result {
+  [self.paymentQueueHandler presentCodeRedemptionSheet];
+  result(nil);
+}
+
 - (void)retrieveReceiptData:(FlutterMethodCall *)call result:(FlutterResult)result {
   FlutterError *error = nil;
   NSString *receiptData = [self.receiptManager retrieveReceiptWithError:&error];
@@ -290,7 +298,7 @@
   }];
 }
 
-#pragma mark - delegates
+#pragma mark - delegates:
 
 - (void)handleTransactionsUpdated:(NSArray<SKPaymentTransaction *> *)transactions {
   NSMutableArray *maps = [NSMutableArray new];

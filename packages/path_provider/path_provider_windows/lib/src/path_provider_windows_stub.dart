@@ -1,4 +1,4 @@
-// Copyright 2020 The Chromium Authors. All rights reserved.
+// Copyright 2013 The Flutter Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -19,7 +19,7 @@ class PathProviderWindows extends PathProviderPlatform {
   }
 
   /// Stub; see comment on VersionInfoQuerier.
-  VersionInfoQuerier versionInfoQuerier;
+  VersionInfoQuerier versionInfoQuerier = VersionInfoQuerier();
 
   /// Match PathProviderWindows so that the analyzer won't report invalid
   /// overrides if tests provide fake PathProviderWindows implementations.
