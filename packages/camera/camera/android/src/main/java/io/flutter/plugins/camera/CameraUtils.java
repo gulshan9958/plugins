@@ -102,7 +102,7 @@ public final class CameraUtils {
   }
 
   static Size customComputeBestPreviewSize(StreamConfigurationMap streamConfigurationMap){
-    Size size = chooseOptimalSize(streamConfigurationMap.getOutputSizes(ImageFormat.JPEG),1800,1800,new Size(4,3));
+    Size size = chooseOptimalSize(streamConfigurationMap.getHighSpeedVideoSizes(),1400,1400,new Size(4,3));
     System.out.println("Output Camera Preview Size:"+size);
     return size;
   }
@@ -116,8 +116,6 @@ public final class CameraUtils {
    *
    * @param choices           The list of sizes that the camera supports for the intended output
    *                          class
-   * @param textureViewWidth  The width of the texture view relative to sensor coordinate
-   * @param textureViewHeight The height of the texture view relative to sensor coordinate
    * @param maxWidth          The maximum width that can be chosen
    * @param maxHeight         The maximum height that can be chosen
    * @param aspectRatio       The aspect ratio
@@ -152,6 +150,9 @@ public final class CameraUtils {
     //}
     else {
       //Log.e(TAG, "Couldn't find any suitable preview size");
+      if (choices.length == 0) {
+        return new Size(1280, 960);
+      }
       return choices[0];
     }
   }
