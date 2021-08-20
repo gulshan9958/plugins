@@ -50,7 +50,7 @@ public final class CameraPlugin implements FlutterPlugin, ActivityAware {
     plugin.maybeStartListening(
         registrar.activity(),
         registrar.messenger(),
-        registrar::addRequestPermissionsResultListener,
+       
         registrar.view());
   }
 
@@ -69,7 +69,7 @@ public final class CameraPlugin implements FlutterPlugin, ActivityAware {
     maybeStartListening(
         binding.getActivity(),
         flutterPluginBinding.getBinaryMessenger(),
-        binding::addRequestPermissionsResultListener,
+       
         flutterPluginBinding.getTextureRegistry());
   }
 
@@ -97,7 +97,7 @@ public final class CameraPlugin implements FlutterPlugin, ActivityAware {
   private void maybeStartListening(
       Activity activity,
       BinaryMessenger messenger,
-      PermissionsRegistry permissionsRegistry,
+     
       TextureRegistry textureRegistry) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
       // If the sdk is less than 21 (min sdk for Camera2) we don't register the plugin.
@@ -106,6 +106,6 @@ public final class CameraPlugin implements FlutterPlugin, ActivityAware {
 
     methodCallHandler =
         new MethodCallHandlerImpl(
-            activity, messenger, new CameraPermissions(), permissionsRegistry, textureRegistry);
+            activity, messenger, textureRegistry);
   }
 }

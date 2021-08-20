@@ -47,11 +47,11 @@ public class DeviceOrientationManager {
     return new DeviceOrientationManager(activity, messenger, isFrontFacing, sensorOrientation);
   }
 
-  private DeviceOrientationManager(
-      @NonNull Activity activity,
-      @NonNull DartMessenger messenger,
-      boolean isFrontFacing,
-      int sensorOrientation) {
+  public DeviceOrientationManager(
+          @NonNull Activity activity,
+          @NonNull DartMessenger messenger,
+          boolean isFrontFacing,
+          int sensorOrientation) {
     this.activity = activity;
     this.messenger = messenger;
     this.isFrontFacing = isFrontFacing;
