@@ -36,25 +36,28 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
     private final Activity activity;
     private final BinaryMessenger messenger;
 
-
+    private final CameraPermissions cameraPermissions;
+    private final PermissionsRegistry permissionsRegistry;
     private final TextureRegistry textureRegistry;
     private final MethodChannel methodChannel;
     private final EventChannel imageStreamChannel;
-     
 
-    FlCameraEvent flCameraEvent = null;
+
+
     private FlCameraX flCamera = null;
 
 
     MethodCallHandlerImpl(
             Activity activity,
             BinaryMessenger messenger,
-
+            CameraPermissions cameraPermissions,
+            PermissionsRegistry permissionsAdder,
 
             TextureRegistry textureRegistry) {
         this.activity = activity;
         this.messenger = messenger;
-
+        this.cameraPermissions = cameraPermissions;
+        this.permissionsRegistry = permissionsAdder;
         this.textureRegistry = textureRegistry;
 
         methodChannel = new MethodChannel(messenger, "plugins.flutter.io/camera");
@@ -74,23 +77,29 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                 break;
             case "create": {
 
-
-                try {
+          cameraPermissions.requestPermissions(
+              activity,
+              permissionsRegistry,
+              call.argument("enableAudio"),
+              (String errCode, String errDesc) -> {
+                if (errCode == null) {
+                  try {
                     instantiateCamera(call, result);
                 } catch (Exception e) {
                     handleException(e, result);
                 }
-                break;
-            }
-            case "initialize": {
-                try {
-                    startPreview(null, call, result);
-                    result.success(null);
-                } catch (Exception e) {
-                    handleException(e, result);
-                }
-                if (flCamera != null) {
 
+            }});
+                break;}
+            case "initialize": {
+
+                if (flCamera != null) {
+                    try {
+                        startPreview(null, call, result);
+                        result.success(null);
+                    } catch (Exception e) {
+                        handleException(e, result);
+                    }
                 } else {
                     result.error(
                             "cameraNotFound",
