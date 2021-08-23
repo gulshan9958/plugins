@@ -9,9 +9,9 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 import io.flutter.plugin.common.MethodChannel;
 
-class PictureCaptureRequest {
+public class PictureCaptureRequest {
 
-  enum State {
+  public enum State {
     idle,
     focusing,
     preCapture,

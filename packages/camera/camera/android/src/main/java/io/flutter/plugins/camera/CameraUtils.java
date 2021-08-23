@@ -92,7 +92,7 @@ public final class CameraUtils {
     return new Size(profile.videoFrameWidth, profile.videoFrameHeight);
   }
 
-  static Size computeBestCaptureSize(StreamConfigurationMap streamConfigurationMap) {
+  public static Size computeBestCaptureSize(StreamConfigurationMap streamConfigurationMap) {
     // For still image captures, we use the largest available size.
     //return Collections.max(Arrays.asList(streamConfigurationMap.getOutputSizes(ImageFormat.JPEG)),new CompareSizesByArea());
 
@@ -101,8 +101,8 @@ public final class CameraUtils {
     return size;
   }
 
-  static Size customComputeBestPreviewSize(StreamConfigurationMap streamConfigurationMap){
-    Size size = chooseOptimalSize(streamConfigurationMap.getHighSpeedVideoSizes(),1400,1400,new Size(4,3));
+  public static Size customComputeBestPreviewSize(StreamConfigurationMap streamConfigurationMap){
+    Size size = chooseOptimalSize(streamConfigurationMap.getOutputSizes(ImageFormat.JPEG),800,800,new Size(4,3));
     System.out.println("Output Camera Preview Size:"+size);
     return size;
   }
@@ -186,8 +186,8 @@ public final class CameraUtils {
     return cameras;
   }
 
-  static CamcorderProfile getBestAvailableCamcorderProfileForResolutionPreset(
-      String cameraName, ResolutionPreset preset) {
+  public static CamcorderProfile getBestAvailableCamcorderProfileForResolutionPreset(
+          String cameraName, ResolutionPreset preset) {
     int cameraId = Integer.parseInt(cameraName);
     switch (preset) {
         // All of these cases deliberately fall through to get the best available profile.

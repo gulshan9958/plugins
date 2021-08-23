@@ -18,15 +18,15 @@ import java.util.Map;
 
 /** Utility class that facilitates communication to the Flutter client */
 public class DartMessenger {
-  @NonNull private final Handler handler;
-  @Nullable private MethodChannel cameraChannel;
-  @Nullable private MethodChannel deviceChannel;
+  @NonNull public final Handler handler;
+  @Nullable public MethodChannel cameraChannel;
+  @Nullable public MethodChannel deviceChannel;
 
   /** Specifies the different device related message types. */
   enum DeviceEventType {
     /** Indicates the device's orientation has changed. */
     ORIENTATION_CHANGED("orientation_changed");
-    private final String method;
+    public final String method;
 
     DeviceEventType(String method) {
       this.method = method;
@@ -42,7 +42,7 @@ public class DartMessenger {
     /** Indicates that the camera is initialized. */
     INITIALIZED("initialized");
 
-    private final String method;
+    public final String method;
 
     /**
      * Converts the supplied method name to the matching {@link CameraEventType}.
@@ -95,13 +95,13 @@ public class DartMessenger {
    * @param exposurePointSupported indicates if the camera supports setting an exposure point.
    * @param focusPointSupported indicates if the camera supports setting a focus point.
    */
-  void sendCameraInitializedEvent(
-      Integer previewWidth,
-      Integer previewHeight,
-      ExposureMode exposureMode,
-      FocusMode focusMode,
-      Boolean exposurePointSupported,
-      Boolean focusPointSupported) {
+  public void sendCameraInitializedEvent(
+          Integer previewWidth,
+          Integer previewHeight,
+          ExposureMode exposureMode,
+          FocusMode focusMode,
+          Boolean exposurePointSupported,
+          Boolean focusPointSupported) {
     assert (previewWidth != null);
     assert (previewHeight != null);
     assert (exposureMode != null);
@@ -123,7 +123,7 @@ public class DartMessenger {
   }
 
   /** Sends a message to the Flutter client informing that the camera is closing. */
-  void sendCameraClosingEvent() {
+  public void sendCameraClosingEvent() {
     send(CameraEventType.CLOSING);
   }
 
@@ -133,7 +133,7 @@ public class DartMessenger {
    *
    * @param description contains details regarding the error that occurred.
    */
-  void sendCameraErrorEvent(@Nullable String description) {
+  public void sendCameraErrorEvent(@Nullable String description) {
     this.send(
         CameraEventType.ERROR,
         new HashMap<String, Object>() {
@@ -143,11 +143,11 @@ public class DartMessenger {
         });
   }
 
-  private void send(CameraEventType eventType) {
+  public void send(CameraEventType eventType) {
     send(eventType, new HashMap<>());
   }
 
-  private void send(CameraEventType eventType, Map<String, Object> args) {
+  public void send(CameraEventType eventType, Map<String, Object> args) {
     if (cameraChannel == null) {
       return;
     }
@@ -161,11 +161,11 @@ public class DartMessenger {
         });
   }
 
-  private void send(DeviceEventType eventType) {
+  public void send(DeviceEventType eventType) {
     send(eventType, new HashMap<>());
   }
 
-  private void send(DeviceEventType eventType, Map<String, Object> args) {
+  public void send(DeviceEventType eventType, Map<String, Object> args) {
     if (deviceChannel == null) {
       return;
     }
