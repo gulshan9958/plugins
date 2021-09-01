@@ -208,7 +208,7 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
             }
             case "setExposureOffset": {
                 try {
-                    result.success(null);
+                    result.success(0.0);
                  //   camera.setExposureOffset(result, call.argument("offset"));
                 } catch (Exception e) {
                     handleException(e, result);
@@ -357,10 +357,10 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                         cameraName,
                         resolutionPreset,
                         enableAudio);*/
-
         flCamera =
                 new FlCameraX(activity, flutterSurfaceTexture, dartMessenger);
         flCamera. setCameraSelect(cameraName);
+        dartMessenger.sendDeviceOrientationChangeEvent(PlatformChannel.DeviceOrientation.PORTRAIT_UP);
 
         Map<String, Object> reply = new HashMap<>();
         reply.put("cameraId", flutterSurfaceTexture.id());

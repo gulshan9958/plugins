@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraAccessException
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.*
@@ -16,8 +17,8 @@ import fl.camera.CameraTools
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.camera.DartMessenger
-import io.flutter.plugins.camera.types.FlashMode
 import io.flutter.plugins.camera.types.ExposureMode
+import io.flutter.plugins.camera.types.FlashMode
 import io.flutter.plugins.camera.types.FocusMode
 import io.flutter.view.TextureRegistry
 import java.io.File
@@ -29,24 +30,28 @@ import kotlin.collections.set
 
 class FlCameraX(
     private val activity: Activity,
-    private var textureEntry:  TextureRegistry.SurfaceTextureEntry?,
+    private var textureEntry: TextureRegistry.SurfaceTextureEntry?,
     private val dartMessenger: DartMessenger
 ) {
 
     private val executor = ContextCompat.getMainExecutor(activity)
     private var cameraProvider: ProcessCameraProvider? = null
+
     //public var textureEntry: TextureRegistry.SurfaceTextureEntry? = null
     private var camera: Camera? = null
     var imageCapture: ImageCapture? = null
     var analysis: ImageAnalysis? = null
-  public  var cameraSelector: CameraSelector?  = null
-    var textureId :Long?=null
+    public var cameraSelector: CameraSelector? = null
+    var textureId: Long? = null
     var previewResolution: Size? = null
-    fun  getanalysis(): ImageAnalysis? {
-    return  analysis
-}
-    fun settextureId(textureId :Long){
-        this.textureId=textureId
+
+
+    fun getanalysis(): ImageAnalysis? {
+        return analysis
+    }
+
+    fun settextureId(textureId: Long) {
+        this.textureId = textureId
     }
 
     private fun checkPermission(): Boolean {
@@ -66,6 +71,9 @@ class FlCameraX(
     ) {
         if (!checkPermission()) return
         val provider = ProcessCameraProvider.getInstance(activity)
+        val owner = activity as LifecycleOwner
+
+
         provider.addListener({
             cameraProvider = provider.get()
 
@@ -91,7 +99,7 @@ class FlCameraX(
                         setAnalyzer(executor, imageAnalyzer)
                     }
                 }
-            val owner = activity as LifecycleOwner
+
             try {
                 cameraProvider!!.unbindAll()
                 val screenAspectRatio = AspectRatio.RATIO_4_3
@@ -104,6 +112,7 @@ class FlCameraX(
                     // during the lifecycle of this use case
                     // .setTargetRotation(rotation)
                     .build()
+
                 camera = cameraProvider!!.bindToLifecycle(
                     owner,
                     cameraSelector!!,
@@ -112,7 +121,6 @@ class FlCameraX(
 
                     imageCapture
                 )
-
 
                 /*camera!!.cameraInfo.torchState.observe(owner, { state ->
                     // TorchState.OFF = 0; TorchState.ON = 1
@@ -133,33 +141,58 @@ class FlCameraX(
                 /*    val rotation: Int = camera.getDisplay().getRotation()*/
                 // ImageCapture
 
-                  previewResolution = preview.attachedSurfaceResolution!!
-                val portrait = camera!!.cameraInfo.sensorRotationDegrees % 180 == 0
-                val w = previewResolution?.width
-                val h = previewResolution?.height
+
+                try {
+                    camera!!.cameraInfo.cameraState.observe(owner, { state ->
+                        if (state.type == CameraState.Type.OPEN) {
+                            try {
+                                if (preview?.attachedSurfaceResolution != null) {
+                                    previewResolution = preview.attachedSurfaceResolution!!
+                                    //  val portrait = camera!!.cameraInfo.sensorRotationDegrees % 180 == 0
+                                    val w = previewResolution?.width
+                                    val h = previewResolution?.height
 
 
 
-                dartMessenger.sendCameraInitializedEvent(
-                    w,
-                    h,
-                    ExposureMode.auto,
-                    FocusMode.auto,
-                    true,
-                    true
-                )
+                                    dartMessenger.sendCameraInitializedEvent(
+                                        w,
+                                        h,
+                                        ExposureMode.auto,
+                                        FocusMode.auto,
+                                        true,
+                                        true
+                                    )
+                                }
+                            } catch (e: Exception) {
+                                dartMessenger.sendCameraErrorEvent(e.message)
 
+                            }
+
+                        } else if (state.type == CameraState.Type.CLOSED) {
+                             dartMessenger.sendCameraClosingEvent()
+                        }
+
+
+                    })
+                } catch (e: Exception) {
+                    dartMessenger.sendCameraErrorEvent(e.message)
+
+                }
 
                 //result.success(map)
             } catch (e: Exception) {
                 dartMessenger.sendCameraErrorEvent(e.message)
             }
         }, executor)
+
     }
 
-    fun setFlashMode(result: MethodChannel.Result, mode:    io.flutter.plugins.camera.types.FlashMode){
+    fun setFlashMode(
+        result: MethodChannel.Result,
+        mode: io.flutter.plugins.camera.types.FlashMode
+    ) {
 
-    // Get the flash availability
+        // Get the flash availability
         val flashAvailable: Boolean = camera?.cameraInfo!!.hasFlashUnit()
 
         // Check if flash is available.
@@ -172,6 +205,7 @@ class FlCameraX(
 
         updateFlash(mode)
     }
+
     private fun updateFlash(mode: io.flutter.plugins.camera.types.FlashMode) {
 
         when (mode) {
@@ -179,26 +213,28 @@ class FlCameraX(
                 camera?.cameraControl?.enableTorch(false);
                 imageCapture!!.flashMode = ImageCapture.FLASH_MODE_OFF
             }
-           FlashMode.auto -> {
+            FlashMode.auto -> {
                 camera?.cameraControl?.enableTorch(false);
-               imageCapture!!.flashMode = ImageCapture.FLASH_MODE_AUTO
+                imageCapture!!.flashMode = ImageCapture.FLASH_MODE_AUTO
             }
-           FlashMode.always -> {
+            FlashMode.always -> {
                 camera?.cameraControl?.enableTorch(false);
-               imageCapture!!.flashMode = ImageCapture.FLASH_MODE_ON
+                imageCapture!!.flashMode = ImageCapture.FLASH_MODE_ON
             }
-       FlashMode.torch -> {
+            FlashMode.torch -> {
                 camera?.cameraControl?.enableTorch(true);
 
             }
 
         }
     }
-    fun  setCameraSelect(cameraId: String){
-        this.cameraSelector= CameraTools.getCameraSelector(cameraId)
+
+    fun setCameraSelect(cameraId: String) {
+        this.cameraSelector = CameraTools.getCameraSelector(cameraId)
 
 
     }
+
     fun setZoomRatio(ratio: Float) {
         camera?.cameraControl?.setZoomRatio(ratio)
 
@@ -303,18 +339,18 @@ class FlCameraX(
 
     fun setFocusPoint(result: MethodChannel.Result, x: Double, y: Double) {
 
-       /*  String modeStr = call.argument("mode");
-                FlashMode mode = FlashMode.getValueForString(modeStr);
-                if (mode == null) {
-                    result.error("setFlashModeFailed", "Unknown flash mode " + modeStr, null);
-                    return;
-                }
-                try {
-                    camera.setFlashMode(result, mode);
-                } catch (Exception e) {
-                    handleException(e, result);
-                }result.success(true)
-         */
+        /*  String modeStr = call.argument("mode");
+                 FlashMode mode = FlashMode.getValueForString(modeStr);
+                 if (mode == null) {
+                     result.error("setFlashModeFailed", "Unknown flash mode " + modeStr, null);
+                     return;
+                 }
+                 try {
+                     camera.setFlashMode(result, mode);
+                 } catch (Exception e) {
+                     handleException(e, result);
+                 }result.success(true)
+          */
 
         val w = previewResolution?.width
         val h = previewResolution?.height
@@ -348,12 +384,10 @@ class FlCameraX(
                     result.success(false)
                 }
             } catch (e: java.lang.Exception) {
-                result.error("focusError",e.message,null)
+                result.error("focusError", e.message, null)
             }
         }, executor)
     }
-
-
 
 
 }
@@ -409,4 +443,5 @@ class Helper() {
         }
         return null
     }
+
 }
