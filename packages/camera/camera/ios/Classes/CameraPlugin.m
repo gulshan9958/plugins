@@ -458,6 +458,12 @@ NSString *const errorMethod = @"error";
 }
 
 - (void)captureToFile:(FlutterResult)result API_AVAILABLE(ios(10)) {
+
+    BOOL isLastStreaming = NO;
+    if(_isStreamingImages){
+        _isStreamingImages = NO;
+        isLastStreaming = YES;
+    }
   AVCapturePhotoSettings *settings = [AVCapturePhotoSettings photoSettings];
   if (_resolutionPreset == max) {
     [settings setHighResolutionPhotoEnabled:YES];
@@ -480,6 +486,9 @@ NSString *const errorMethod = @"error";
   [_capturePhotoOutput capturePhotoWithSettings:settings
                                        delegate:[[FLTSavePhotoDelegate alloc] initWithPath:path
                                                                                     result:result]];
+    if(isLastStreaming){
+        _isStreamingImages = YES;
+    }
 }
 
 - (AVCaptureVideoOrientation)getVideoOrientationForDeviceOrientation:
@@ -529,7 +538,8 @@ NSString *const errorMethod = @"error";
 
 - (void)setCaptureSessionPreset:(ResolutionPreset)resolutionPreset {
     _captureSession.sessionPreset = AVCaptureSessionPresetPhoto;
-    _previewSize = CGSizeMake(4000, 3000);
+    _previewSize = CGSizeMake(640, 480);
+    //_previewSize = CGSizeMake(4000, 3000);
    return;
   switch (resolutionPreset) {
     case max:
