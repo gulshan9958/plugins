@@ -99,6 +99,7 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                         result.success(null);
                     } catch (Exception e) {
                         handleException(e, result);
+                        handleException(e, result);
                     }
                 } else {
                     result.error(

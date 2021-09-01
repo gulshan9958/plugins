@@ -309,7 +309,15 @@ class CameraController extends ValueNotifier<CameraValue> {
 
     _initCalled = true;
   }
-
+  @override
+  void removeListener(VoidCallback listener) {
+    // Prevent ValueListenableBuilder in CameraPreview widget from causing an
+    // exception to be thrown by attempting to remove its own listener after
+    // the controller has already been disposed.
+    if (!_isDisposed) {
+      super.removeListener(listener);
+    }
+  }
   /// Prepare the capture session for video recording.
   ///
   /// Use of this method is optional, but it may be called for performance
