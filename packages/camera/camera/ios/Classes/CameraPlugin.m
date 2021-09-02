@@ -599,6 +599,8 @@ NSString *const errorMethod = @"error";
   }
 }
 
+long streamCounter = 0;
+
 - (void)captureOutput:(AVCaptureOutput *)output
     didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
            fromConnection:(AVCaptureConnection *)connection {
@@ -622,7 +624,11 @@ NSString *const errorMethod = @"error";
     return;
   }
   if (_isStreamingImages) {
-    if (_imageStreamHandler.eventSink) {
+      if(streamCounter > 100000){
+          streamCounter = 0;
+      }
+      streamCounter++;
+    if (_imageStreamHandler.eventSink && (streamCounter % 4 == 0)) {
       CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
       CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
