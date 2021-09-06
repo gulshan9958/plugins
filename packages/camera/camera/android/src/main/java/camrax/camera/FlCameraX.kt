@@ -169,7 +169,7 @@ class FlCameraX(
                             }
 
                         } else if (state.type == CameraState.Type.CLOSED) {
-                             dartMessenger.sendCameraClosingEvent()
+                            dartMessenger.sendCameraClosingEvent()
                         }
 
 
@@ -352,8 +352,10 @@ class FlCameraX(
                  }result.success(true)
           */
 
-        val w = previewResolution?.width
-        val h = previewResolution?.height
+
+        val w = previewResolution?.height
+        val h = previewResolution?.width
+
         val factory: MeteringPointFactory = SurfaceOrientedMeteringPointFactory(
             w!!.toFloat(),
             h!!.toFloat()
@@ -365,28 +367,36 @@ class FlCameraX(
             w!!.toFloat(),
             h!!.toFloat()
         )*/
-        val point = factory.createPoint(x.toFloat(), y.toFloat())
-        val action = FocusMeteringAction.Builder(point) //.disableAutoCancel()
-            .setAutoCancelDuration(6, TimeUnit.SECONDS)
-            .build()
-        val resultListenableFuture: ListenableFuture<FocusMeteringResult>? =
-            camera?.cameraControl?.startFocusAndMetering(action)
-        //FocusTimeoutHandler focusTimeoutHandler = new FocusTimeoutHandler();
-        //focusTimeoutHandler.startFocusTimeout(resultListenableFuture);
-        //FocusTimeoutHandler focusTimeoutHandler = new FocusTimeoutHandler();
-        //focusTimeoutHandler.startFocusTimeout(resultListenableFuture);
-        resultListenableFuture?.addListener({
-            try {
-                val focusMeteringResult = resultListenableFuture.get()
-                if (focusMeteringResult.isFocusSuccessful) {
-                    result.success(true)
-                } else {
-                    result.success(false)
+        val point = factory.createPoint(
+            (y.toFloat() * w),
+            ((1 - x.toFloat()) * h)
+        )
+        try {
+            val action = FocusMeteringAction.Builder(point) //.disableAutoCancel()
+                //.setAutoCancelDuration(6, TimeUnit.SECONDS)
+                .disableAutoCancel()
+                .build()
+            val resultListenableFuture: ListenableFuture<FocusMeteringResult>? =
+                camera?.cameraControl?.startFocusAndMetering(action)
+            //FocusTimeoutHandler focusTimeoutHandler = new FocusTimeoutHandler();
+            //focusTimeoutHandler.startFocusTimeout(resultListenableFuture);
+            //FocusTimeoutHandler focusTimeoutHandler = new FocusTimeoutHandler();
+            //focusTimeoutHandler.startFocusTimeout(resultListenableFuture);
+            resultListenableFuture?.addListener({
+                try {
+                    val focusMeteringResult = resultListenableFuture.get()
+                    if (focusMeteringResult.isFocusSuccessful) {
+                        result.success(true)
+                    } else {
+                        result.success(false)
+                    }
+                } catch (e: java.lang.Exception) {
+                    result.error("focusError", e.message, null)
                 }
-            } catch (e: java.lang.Exception) {
-                result.error("focusError", e.message, null)
-            }
-        }, executor)
+            }, executor)
+        } catch (e1: java.lang.Exception) {
+            //do nothing.
+        }
     }
 
 
