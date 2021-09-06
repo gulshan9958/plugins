@@ -190,7 +190,7 @@ class FlCameraX(
     fun setFlashMode(
         result: MethodChannel.Result,
         mode: io.flutter.plugins.camera.types.FlashMode
-    ) {
+    ): Boolean {
 
         // Get the flash availability
         val flashAvailable: Boolean = camera?.cameraInfo!!.hasFlashUnit()
@@ -200,10 +200,11 @@ class FlCameraX(
         // Check if flash is available.
         if (flashAvailable == null || !flashAvailable) {
             result.error("setFlashModeFailed", "Device does not have flash capabilities", null)
-            return
+            return false;
         }
 
         updateFlash(mode)
+        return true;
     }
 
     private fun updateFlash(mode: io.flutter.plugins.camera.types.FlashMode) {

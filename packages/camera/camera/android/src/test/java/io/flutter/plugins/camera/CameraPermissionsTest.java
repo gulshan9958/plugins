@@ -15,7 +15,7 @@ public class CameraPermissionsTest {
   public void listener_respondsOnce() {
     final int[] calledCounter = {0};
     CameraRequestPermissionsListener permissionsListener =
-        new CameraRequestPermissionsListener((String code, String desc) -> calledCounter[0]++);
+        new CameraRequestPermissionsListener(null, (String code, String desc) -> calledCounter[0]++);
 
     permissionsListener.onRequestPermissionsResult(
         9796, null, new int[] {PackageManager.PERMISSION_DENIED});

@@ -43,7 +43,6 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
     private final EventChannel imageStreamChannel;
 
 
-
     private FlCameraX flCamera = null;
 
 
@@ -76,21 +75,27 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                 }
                 break;
             case "create": {
-
-          cameraPermissions.requestPermissions(
-              activity,
-              permissionsRegistry,
-              call.argument("enableAudio"),
-              (String errCode, String errDesc) -> {
-                if (errCode == null) {
-                  try {
-                    instantiateCamera(call, result);
-                } catch (Exception e) {
-                    handleException(e, result);
+                if (flCamera != null) {
+                    flCamera.dispose();
                 }
+                cameraPermissions.requestPermissions(
+                        activity,
+                        permissionsRegistry,
+                        call.argument("enableAudio"),
+                        (String errCode, String errDesc) -> {
+                            if (errCode == null) {
+                                try {
+                                    instantiateCamera(call, result);
+                                } catch (Exception e) {
+                                    handleException(e, result);
+                                }
+                            } else {
+                                result.error(errCode, errDesc, null);
+                            }
 
-            }});
-                break;}
+                        });
+                break;
+            }
             case "initialize": {
 
                 if (flCamera != null) {
@@ -119,19 +124,19 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                 break;
             }
             case "startVideoRecording": {
-               // camera.startVideoRecording(result);
+                // camera.startVideoRecording(result);
                 break;
             }
             case "stopVideoRecording": {
-              //  camera.stopVideoRecording(result);
+                //  camera.stopVideoRecording(result);
                 break;
             }
             case "pauseVideoRecording": {
-              //  camera.pauseVideoRecording(result);
+                //  camera.pauseVideoRecording(result);
                 break;
             }
             case "resumeVideoRecording": {
-             //   camera.resumeVideoRecording(result);
+                //   camera.resumeVideoRecording(result);
                 break;
             }
             case "setFlashMode": {
@@ -141,12 +146,15 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                     result.error("setFlashModeFailed", "Unknown flash mode " + modeStr, null);
                     return;
                 }
+                boolean hasFlash = true;
                 try {
-                    flCamera.setFlashMode(result, mode);
+                    hasFlash = flCamera.setFlashMode(result, mode);
                 } catch (Exception e) {
                     handleException(e, result);
                 }
-                result.success(null);
+                if(hasFlash){
+                    result.success(null);
+                }
                 break;
             }
             case "setExposureMode": {
@@ -304,7 +312,7 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                         CameraUtils.deserializeDeviceOrientation(call.argument("orientation"));
 
                 try {
-                   // camera.lockCaptureOrientation(orientation);
+                    // camera.lockCaptureOrientation(orientation);
                     result.success(null);
                 } catch (Exception e) {
                     handleException(e, result);
@@ -315,7 +323,7 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                 try {
 
 
-                   // camera.unlockCaptureOrientation();
+                    // camera.unlockCaptureOrientation();
                     result.success(null);
                 } catch (Exception e) {
                     handleException(e, result);
@@ -360,7 +368,7 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
                         enableAudio);*/
         flCamera =
                 new FlCameraX(activity, flutterSurfaceTexture, dartMessenger);
-        flCamera. setCameraSelect(cameraName);
+        flCamera.setCameraSelect(cameraName);
         dartMessenger.sendDeviceOrientationChangeEvent(PlatformChannel.DeviceOrientation.PORTRAIT_UP);
 
         Map<String, Object> reply = new HashMap<>();
@@ -368,9 +376,10 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
         result.success(reply);
 
     }
+
     public void startPreview(
             ImageAnalysis.Analyzer imageAnalyzer,
-            MethodCall call ,
+            MethodCall call,
             MethodChannel.Result result
     ) {
 
@@ -378,10 +387,11 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
         // camera provides access to CameraControl & CameraInfo
 
         //val resolution = call.argument<String>("resolution")
-       // val cameraId = call.argument<String>("cameraId")
-       // String previewSize = new CameraTools().computeBestPreviewSize(cameraId, resolution)
+        // val cameraId = call.argument<String>("cameraId")
+        // String previewSize = new CameraTools().computeBestPreviewSize(cameraId, resolution)
         if (flCamera != null) {
-        flCamera.initCameraX(  result, imageAnalyzer);}
+            flCamera.initCameraX(result, imageAnalyzer);
+        }
     }
 
     // We move catching CameraAccessException out of onMethodCall because it causes a crash
