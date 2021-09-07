@@ -772,6 +772,11 @@ class CameraController extends ValueNotifier<CameraValue> {
     }
   }
 
+  /// Check controller has disposed(gulshan)
+  bool isDisposed(){
+    return _isDisposed;
+  }
+
   void _throwIfNotInitialized(String functionName) {
     if (!value.isInitialized) {
       throw CameraException(
