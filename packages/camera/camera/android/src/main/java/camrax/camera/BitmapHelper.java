@@ -100,14 +100,17 @@ public class BitmapHelper {
         return areNV21;
     }
     public  static void processImage(ImageProxy img, EventChannel.EventSink imageStreamSink){
-        Task.callInBackground(() -> {
+        imageStreamSink.success(Helper.Companion.call(img));
+        img.close();
+
+        /*Task.callInBackground(() -> {
            
 return new Helper().call(img);
         }).continueWith(task -> {
             img.close();
             imageStreamSink.success(task.getResult());
             return null;
-        }, Task.UI_THREAD_EXECUTOR);
+        }, Task.UI_THREAD_EXECUTOR);*/
     }
    }
     

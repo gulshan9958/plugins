@@ -285,12 +285,20 @@ class FlCameraX(
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        var streamCounter = 0;
         analysis?.setAnalyzer(executor) { imageProxy ->
 
+            if (streamCounter > 1000000) {
+                streamCounter = 0;
+            }
+            streamCounter++
 
             try {
-                onImageStream(imageProxy, imageStreamSink)
-
+                if((streamCounter % 2) == 0 ) {
+                    onImageStream(imageProxy, imageStreamSink)
+                } else {
+                    imageProxy.close();
+                }
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -404,11 +412,12 @@ class FlCameraX(
 }
 
 
-class Helper() {
-    @SuppressLint("UnsafeOptInUsageError")
-    fun call(img: ImageProxy): MutableMap<String, Any>? {
-        if (img.image != null) {
-            /* val planes: MutableList<Map<String, Any>> =
+class Helper {
+    companion object {
+        @SuppressLint("UnsafeOptInUsageError")
+        fun call(img: ImageProxy): MutableMap<String, Any>? {
+            if (img.image != null) {
+                /* val planes: MutableList<Map<String, Any>> =
                  ArrayList()
              val buffer = BitmapHelper.yuv420ThreePlanesToNV21(
                  img.image!!.planes , img.width, img.height
@@ -432,27 +441,28 @@ class Helper() {
              imageBuffer["planes"] = planes
 
              //img.close()*/
-            val planes: MutableList<Map<String, Any>> = ArrayList()
-            for (plane in img.planes) {
-                val buffer = plane.buffer
-                val bytes = ByteArray(buffer.remaining())
-                buffer[bytes, 0, bytes.size]
-                val planeBuffer: MutableMap<String, Any> = java.util.HashMap()
-                planeBuffer["bytesPerRow"] = plane.rowStride
-                planeBuffer["bytesPerPixel"] = plane.pixelStride
-                planeBuffer["bytes"] = bytes
-                planes.add(planeBuffer)
+                val planes: MutableList<Map<String, Any>> = ArrayList()
+                for (plane in img.planes) {
+                    val buffer = plane.buffer
+                    val bytes = ByteArray(buffer.remaining())
+                    buffer[bytes, 0, bytes.size]
+                    val planeBuffer: MutableMap<String, Any> = java.util.HashMap()
+                    planeBuffer["bytesPerRow"] = plane.rowStride
+                    planeBuffer["bytesPerPixel"] = plane.pixelStride
+                    planeBuffer["bytes"] = bytes
+                    planes.add(planeBuffer)
+                }
+
+                val imageBuffer: MutableMap<String, Any> = java.util.HashMap()
+                imageBuffer["width"] = img.width
+                imageBuffer["height"] = img.height
+                imageBuffer["format"] = img.format
+                imageBuffer["planes"] = planes
+
+                return imageBuffer;
             }
-
-            val imageBuffer: MutableMap<String, Any> = java.util.HashMap()
-            imageBuffer["width"] = img.width
-            imageBuffer["height"] = img.height
-            imageBuffer["format"] = img.format
-            imageBuffer["planes"] = planes
-
-            return imageBuffer;
+            return null
         }
-        return null
     }
 
 }
